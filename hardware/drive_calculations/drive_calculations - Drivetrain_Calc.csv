@@ -1,0 +1,17 @@
+,Inputs,Calculations,,,,,
+,,,,,,,
+,coeff fr.,mass(kg),Bot voltage,,Torque (N-m),Traction Limit Force (N),
+bot info,0.8,1.5,12,,0.15,11.772,
+,wheel dia(m),no. of wheels,,,,,
+wheel info,0.1,2,,,,,
+,rated voltage,stall current(A) per motor,Free RPM @ rated V,No.of Motors,Stall torque,Ratio,Top speed (m/s)
+Motor info (GA12-N20),12,1,200,2,1.5696,10,1.047197551
+,C-rating,Capacity (mAh),Max Cont. Current,,,,
+Battery info (2s LiPo),30,850,25.5,,,,
+,,,,,,,
+,Current Drawn (A),,,,,,
+,MCU (ESP-32),IMU (MPU-6050),Motor Driver (TB6612FNG),,Total Current Draw,Runtime (h),
+Power Info,0.15,0.005,0.005,,2.16,393.5185185,
+,,,,,,,
+,desired speed(m/s),desired max acceleration(m/s^2),,,,,
+,1,1,,,,,
