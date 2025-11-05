@@ -1,5 +1,7 @@
+.pio
+pio
 .vscode
-/vscode
+vscode
 .venv
-/venv
-.DS_Store
+venv
+*.DS_Store
