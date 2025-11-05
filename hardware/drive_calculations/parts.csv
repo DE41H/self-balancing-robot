@@ -1,5 +1,4 @@
 Part,Type,Quantity,Price,Link,Status,Notes
-<<<<<<< HEAD
 MPU-6050,IMU,1,₹169.00,Buy MPU-6050 3-Axis Accelerometer and Gyro Sensor at Best Price,In stock,
 GA12-N20,Motor,2,₹239.00,Buy N20-6V-200 RPM Micro Metal Gear-box DC Motor Online at Robu.inc-motor-2/,Out of stock,
 ESP32,MCU,1,₹257.00,ESP32-C3 Development Board with Solderingring/,In stock,
@@ -18,3 +17,4 @@ LM2596,Buck Converter,1,₹41.00,https://robu.in/product/lm2596s-dc-dc-buck-conv
 Groove Coupler,Encoder,2,₹38.00,https://robu.in/product/speed-measuring-sensor-groove-coupler-module-arduino/,Out of stock,Used as an encoder alternative to cut costs
 Total,Sum,7,"₹1,963.00",N/A,Sum,Overall these parts are expected to work well together
 >>>>>>> 6e51b74 (finalized parts)
+
