@@ -21,21 +21,21 @@ This repository contains all the code, documentation, and design files for our t
 
 ## 🔌 Hardware Stack
 
-* **Microcontroller:** [ESP32-C3]
-* **Gyro Sensor:** [MPU6050]
-* **Motors:** [6A12-N20 DC Gear Motors]
-* **Motor Driver:** [TB6612FNG]
-* **Battery:** [2S 7.4V LiPo Battery]
-* **Chassis:** [3D Printed]
-* **Wheels:** [3D Printed]
-* **Encoder:** [Groove Coupler]
-* **Buck Converter:** [LM2596]
+* **Microcontroller:** ESP32-C3
+* **Gyro Sensor:** MPU6050
+* **Motors:** GA12-N20 DC Gear Motors
+* **Motor Driver:** TB6612FNG
+* **Battery:** 2S 7.4V LiPo Battery
+* **Chassis:** 3D Printed
+* **Wheels:** 3D Printed
+* **Encoder:** Groove Coupler
+* **Buck Converter:** LM2596
 
 ---
 
 ## 📦 Software & Libraries
 
-* **Main Language:** [C++ (Arduino Framework)]
+* **Main Language:** C++ (Arduino Framework)
 
 ---
 
@@ -45,5 +45,6 @@ This repository contains all the code, documentation, and design files for our t
 * **[@IronMan1405]** - Dakshesh Nankani
 * **[@PranayS216]** - Pranay
 * **[@navneetgithubasdf]** - Navneet
+
 
 
