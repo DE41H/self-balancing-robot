@@ -1,14 +1,4 @@
 Part,Type,Quantity,Price,Link,Status,Notes
-<<<<<<< HEAD
-MPU-6050,IMU,1,₹169.00,Buy MPU-6050 3-Axis Accelerometer and Gyro Sensor at Best Price,In stock,
-GA12-N20,Motor,2,₹239.00,Buy N20-6V-200 RPM Micro Metal Gear-box DC Motor Online at Robu.inc-motor-2/,Out of stock,
-ESP32,MCU,1,₹257.00,ESP32-C3 Development Board with Solderingring/,In stock,
-TB6612FNG,Motor Driver,1,₹161.00,Buy Dual Motor Driver Module 1A TB6612FNG For Arduino Microcontroller,In stock,
-2s LiPo,Battery,1,₹781.00,Buy Bonka 7.4V 600mAh 45C 2S Lithium Polymer Battery Pack at Best Price,Out of stock,
-LM2596,Buck Converter,1,₹41.00,LM2596S DC-DC Buck Converter Power Supply,In stock,
-Groove Coupler,Encoder,2,₹38.00,Speed Measuring Sensor Groove Coupler Module For Arduino,Out of stock,
-Total,Sum,7,"₹1,963.00",N/A,Sum,
-=======
 MPU-6050,IMU,1,₹169.00,https://robu.in/product/mpu-6050-gyro-sensor-2-accelerometer/,In stock,Most standard and cost efficient option available
 GA12-N20,Motor,2,₹239.00,https://robu.in/product/n20-6v-100-rpm-micro-metal-gear-box-dc-motor-2/c-motor-2/,Out of stock,Provides enough torque and rpm to balance the robot
 ESP32,MCU,1,₹257.00,https://robu.in/product/esp32-c3-development-board-with-soldering/,In stock,Has excess processing power to handle the PID loop
@@ -17,4 +7,3 @@ TB6612FNG,Motor Driver,1,₹161.00,https://robu.in/product/motor-driver-tb6612fn
 LM2596,Buck Converter,1,₹41.00,https://robu.in/product/lm2596s-dc-dc-buck-converter-power-supply/,In stock,Buck converter required to step down battery voltage to use with ESP
 Groove Coupler,Encoder,2,₹38.00,https://robu.in/product/speed-measuring-sensor-groove-coupler-module-arduino/,Out of stock,Used as an encoder alternative to cut costs
 Total,Sum,7,"₹1,963.00",N/A,Sum,Overall these parts are expected to work well together
->>>>>>> 6e51b74 (finalized parts)
