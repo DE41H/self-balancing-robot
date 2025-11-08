@@ -8,17 +8,28 @@ gyro::gyro() {
 
 bool gyro::begin() {
     pitchQueue = xQueueCreate(1, sizeof(float));
+    if (pitchQueue == NULL) {
+        Serial.println("Failed to create pitch queue!");
+        return false;
+    }
     yawQueue = xQueueCreate(1, sizeof(float));
+    if (yawQueue == NULL) {
+        Serial.println("Failed to create yaw queue!");
+        vQueueDelete(pitchQueue); 
+        return false;
+    }
 
     if (!setup()) {
         Serial.println("IMU Hardware Setup Failed!");
+        vQueueDelete(pitchQueue);
+        vQueueDelete(yawQueue);
         return false;
     }
     else {
         Serial.println("MPU-6050 Found!");
     }
 
-    xTaskCreatePinnedToCore(
+    BaseType_t taskCreated = xTaskCreatePinnedToCore(
         taskTrampoline,
         "Gyro Task",
         TASK_STACK_SIZE,
@@ -27,6 +38,12 @@ bool gyro::begin() {
         &taskHandle,
         TASK_CORE_ID
     );
+    if (taskCreated != pdPASS) {
+        Serial.println("Failed to create gyro task!");
+        vQueueDelete(pitchQueue);
+        vQueueDelete(yawQueue);
+        return false;
+    }
 
     return true;
 }
