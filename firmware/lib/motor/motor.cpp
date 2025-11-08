@@ -97,7 +97,6 @@ void Motor::free() {
     digitalWrite(in2Pin, LOW);
     ledcWrite(pwmChannel, 0);
     currentSpeed = 0;
-    stby(true);
 }
 
 void Motor::brake() {
@@ -105,11 +104,10 @@ void Motor::brake() {
     digitalWrite(in2Pin, HIGH);
     ledcWrite(pwmChannel, 0);
     currentSpeed = 0;
-    stby(true);
 }
 
 void Motor::stby(bool enable) {
-    if (enable) {
+    if (enable && !A.currentSpeed && !B.currentSpeed) {
         digitalWrite(STBY, LOW);
     }
     else {

@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <cmath>
 
+
 class Motor {
     public:
         Motor(byte pwm, byte in1, byte in2, byte encoder, byte channel);
@@ -64,8 +65,6 @@ class Motor {
         static void taskLoop();
         static void taskTrampoline(void *pvParameters);
 };
-
-
 
 
 extern Motor A;
