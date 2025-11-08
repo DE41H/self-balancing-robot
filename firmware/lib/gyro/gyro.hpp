@@ -5,6 +5,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_AHRS.h>
 
+
 class Gyro {
     public:
         Gyro();
@@ -12,8 +13,9 @@ class Gyro {
         static constexpr int SAMPLE_FREQ_HZ = 100;
         
         bool begin();
-        QueueHandle_t getPitchQueue() const;
-        QueueHandle_t getYawQueue() const;
+        
+        QueueHandle_t Gyro::getPitchQueue() const { return pitchQueue; }
+        QueueHandle_t Gyro::getYawQueue() const { return yawQueue; }
 
     private:
         static constexpr int TASK_STACK_SIZE = 4096;

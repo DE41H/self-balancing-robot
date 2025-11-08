@@ -48,14 +48,6 @@ bool Gyro::begin() {
     return true;
 }
 
-QueueHandle_t Gyro::getPitchQueue() const {
-    return pitchQueue;
-}
-
-QueueHandle_t Gyro::getYawQueue() const {
-    return yawQueue;
-}
-
 void Gyro::update() {
     mpu.getEvent(&a, &g, &temp);
     filter.updateIMU(
