@@ -5,9 +5,9 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_AHRS.h>
 
-class gyro {
+class Gyro {
     public:
-        gyro();
+        Gyro();
 
         static constexpr int SAMPLE_FREQ_HZ = 100;
         

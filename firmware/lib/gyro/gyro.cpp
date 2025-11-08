@@ -1,12 +1,12 @@
 #include <gyro.hpp>
 
-const TickType_t xLoopPeriod = (1000 / gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
+const TickType_t xLoopPeriod = (1000 / Gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
 
-gyro::gyro() {
+Gyro::Gyro() {
 
 }
 
-bool gyro::begin() {
+bool Gyro::begin() {
     pitchQueue = xQueueCreate(1, sizeof(float));
     if (pitchQueue == NULL) {
         Serial.println("Failed to create pitch queue!");
@@ -48,15 +48,15 @@ bool gyro::begin() {
     return true;
 }
 
-QueueHandle_t gyro::getPitchQueue() const {
+QueueHandle_t Gyro::getPitchQueue() const {
     return pitchQueue;
 }
 
-QueueHandle_t gyro::getYawQueue() const {
+QueueHandle_t Gyro::getYawQueue() const {
     return yawQueue;
 }
 
-void gyro::update() {
+void Gyro::update() {
     mpu.getEvent(&a, &g, &temp);
     filter.updateIMU(
         g.gyro.x - offset.x,
@@ -74,7 +74,7 @@ void gyro::update() {
     xQueueOverwrite(yawQueue, &currentYaw);
 }
 
-void gyro::calibrate() {
+void Gyro::calibrate() {
     float sumX = 0, sumY = 0, sumZ = 0;
     
     for (int i = 0; i < CALIBRATION_SAMPLES; i++) {
@@ -90,7 +90,7 @@ void gyro::calibrate() {
     offset.z = sumZ / CALIBRATION_SAMPLES;
 }
 
-bool gyro::setup() {
+bool Gyro::setup() {
     Wire.begin();
 
     if (!mpu.begin()) {
@@ -111,7 +111,7 @@ bool gyro::setup() {
     return true;
 }
 
-void gyro::taskLoop() {
+void Gyro::taskLoop() {
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (1) {
         update();
@@ -119,8 +119,8 @@ void gyro::taskLoop() {
     }
 }
 
-void gyro::taskTrampoline(void* pvParameters) {
-    gyro* instance = static_cast<gyro*>(pvParameters);
+void Gyro::taskTrampoline(void* pvParameters) {
+    Gyro* instance = static_cast<Gyro*>(pvParameters);
     
     instance->taskLoop();
 
