@@ -1,13 +1,13 @@
-#include <IMU.hpp>
+#include <gyro.hpp>
 
 #define SAMPLE_FREQ_HZ 100
 const TickType_t xLoopPeriod = (1000 / SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
 
-IMU::IMU() {
+gyro::gyro() {
 
 }
 
-bool IMU::begin() {
+bool gyro::begin() {
     pitchQueue = xQueueCreate(1, sizeof(float));
     yawQueue = xQueueCreate(1, sizeof(float));
 
@@ -21,7 +21,7 @@ bool IMU::begin() {
 
     xTaskCreatePinnedToCore(
         taskTrampoline,
-        "IMU Task",
+        "Gyro Task",
         4096,
         this,
         3,
@@ -32,15 +32,15 @@ bool IMU::begin() {
     return true;
 }
 
-QueueHandle_t IMU::getPitchQueue() const {
+QueueHandle_t gyro::getPitchQueue() const {
     return pitchQueue;
 }
 
-QueueHandle_t IMU::getYawQueue() const {
+QueueHandle_t gyro::getYawQueue() const {
     return yawQueue;
 }
 
-void IMU::update() {
+void gyro::update() {
     mpu.getEvent(&a, &g, &temp);
     filter.updateIMU(
         g.gyro.x - offset.x,
@@ -58,7 +58,7 @@ void IMU::update() {
     xQueueOverwrite(yawQueue, &currentYaw);
 }
 
-void IMU::calibrate() {
+void gyro::calibrate() {
     const int samples = 500;
     float sumX = 0, sumY = 0, sumZ = 0;
     
@@ -75,7 +75,7 @@ void IMU::calibrate() {
     offset.z = sumZ / samples;
 }
 
-bool IMU::setup() {
+bool gyro::setup() {
     Wire.begin();
 
     if (!mpu.begin()) {
@@ -94,7 +94,7 @@ bool IMU::setup() {
     return true;
 }
 
-void IMU::taskLoop() {
+void gyro::taskLoop() {
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (1) {
         update();
@@ -102,8 +102,8 @@ void IMU::taskLoop() {
     }
 }
 
-void IMU::taskTrampoline(void* pvParameters) {
-    IMU* instance = static_cast<IMU*>(pvParameters);
+void gyro::taskTrampoline(void* pvParameters) {
+    gyro* instance = static_cast<gyro*>(pvParameters);
     
     instance->taskLoop();
 

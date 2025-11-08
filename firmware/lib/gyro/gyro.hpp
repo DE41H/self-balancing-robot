@@ -5,9 +5,9 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_AHRS.h>
 
-class IMU {
+class gyro {
     public:
-        IMU();
+        gyro();
         
         bool begin();
         QueueHandle_t getPitchQueue() const;
