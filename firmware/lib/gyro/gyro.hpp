@@ -8,16 +8,23 @@
 class gyro {
     public:
         gyro();
+
+        static constexpr int SAMPLE_FREQ_HZ = 100;
         
         bool begin();
         QueueHandle_t getPitchQueue() const;
         QueueHandle_t getYawQueue() const;
 
     private:
+        static constexpr int TASK_STACK_SIZE = 4096;
+        static constexpr int TASK_PRIORITY = 3;
+        static constexpr int TASK_CORE_ID = 0;
+        static constexpr int CALIBRATION_SAMPLES = 500;
+        static constexpr int CALIBRATION_DELAY_MS = 5;
+
         Adafruit_MPU6050 mpu;
         Adafruit_Madgwick filter;
         sensors_event_t a, g, temp;
-
         QueueHandle_t pitchQueue;
         QueueHandle_t yawQueue;
         TaskHandle_t taskHandle;
@@ -25,7 +32,6 @@ class gyro {
         struct GyroOffset {
             float x, y, z;
         } offset;
-        unsigned long lastUpdateTime;
 
         bool setup();
         void taskLoop();

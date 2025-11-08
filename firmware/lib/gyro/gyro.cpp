@@ -1,7 +1,6 @@
 #include <gyro.hpp>
 
-#define SAMPLE_FREQ_HZ 100
-const TickType_t xLoopPeriod = (1000 / SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
+const TickType_t xLoopPeriod = (1000 / gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
 
 gyro::gyro() {
 
@@ -22,11 +21,11 @@ bool gyro::begin() {
     xTaskCreatePinnedToCore(
         taskTrampoline,
         "Gyro Task",
-        4096,
+        TASK_STACK_SIZE,
         this,
-        3,
+        TASK_PRIORITY,
         &taskHandle,
-        0
+        TASK_CORE_ID
     );
 
     return true;
@@ -59,20 +58,19 @@ void gyro::update() {
 }
 
 void gyro::calibrate() {
-    const int samples = 500;
     float sumX = 0, sumY = 0, sumZ = 0;
     
-    for (int i = 0; i < samples; i++) {
+    for (int i = 0; i < CALIBRATION_SAMPLES; i++) {
         mpu.getEvent(&a, &g, &temp);
         sumX += g.gyro.x;
         sumY += g.gyro.y;
         sumZ += g.gyro.z;
-        delay(5);
+        delay(CALIBRATION_DELAY_MS);
     }
     
-    offset.x = sumX / samples;
-    offset.y = sumY / samples;
-    offset.z = sumZ / samples;
+    offset.x = sumX / CALIBRATION_SAMPLES;
+    offset.y = sumY / CALIBRATION_SAMPLES;
+    offset.z = sumZ / CALIBRATION_SAMPLES;
 }
 
 bool gyro::setup() {
@@ -87,7 +85,9 @@ bool gyro::setup() {
     mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
 
     offset = {0, 0, 0};
+    Serial.println("Calibrating IMU...");
     calibrate();
+    Serial.println("Finished Calibrating IMU");
 
     filter.begin(SAMPLE_FREQ_HZ);
 
