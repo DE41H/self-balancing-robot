@@ -1,23 +1,53 @@
 #include <motor.hpp>
 
-Motor A(LEFT_PWM, LEFT_IN1, LEFT_IN2, LEFT_ENCODER);
-Motor B(RIGHT_PWM, RIGHT_IN1, RIGHT_IN2, RIGHT_ENCODER);
+Motor A(Motor::LEFT_PWM, Motor::LEFT_IN1, Motor::LEFT_IN2, Motor::LEFT_ENCODER, Motor::LEFT_PWM_CHANNEL);
+Motor B(Motor::RIGHT_PWM, Motor::RIGHT_IN1, Motor::RIGHT_IN2, Motor::RIGHT_ENCODER, Motor::RIGHT_PWM_CHANNEL);
 
-const float circumference = PI * WHEEL_DIAMETER;
-
-Motor::Motor(byte pwm, byte in1, byte in2, byte encoder) {
-    init(pwm, in1, in2, encoder);
+Motor::Motor(byte pwm, byte in1, byte in2, byte encoder, byte channel) {
+    init(pwm, in1, in2, encoder, channel);
 }
 
-void Motor::init(byte pwm, byte in1, byte in2, byte encoder) {
+void Motor::begin() {
+    setup();
+
+    xTaskCreatePinnedToCore(
+        taskTrampoline,
+        "Motor Task",
+        4096,
+        NULL,
+        2,
+        &taskHandle,
+        0
+    );
+}
+
+void IRAM_ATTR LEFT_ISR() {
+    A.ping();
+}
+
+void IRAM_ATTR RIGHT_ISR() {
+    B.ping();
+}
+
+void IRAM_ATTR Motor::ping() {
+    static byte tick = 1;
+    xQueueSendToBackFromISR(encoderQueue, &tick, NULL);
+}
+
+void Motor::init(byte pwm, byte in1, byte in2, byte encoder, byte channel) {
     pwmPin = pwm;
+    pwmChannel = channel;
     in1Pin = in1;
     in2Pin = in2;
     encoderPin = encoder;
     currentSpeed = 0;
-    encoderCount = 0;
     rpm = 0.0;
     velocity = 0.0;
+
+    encoderQueue = xQueueCreate(ENCODER_QUEUE_LENGTH, sizeof(byte));
+    if (encoderQueue == NULL) {
+        Serial.println("ERROR: Could not create encoder queue");
+    }
 
     pinMode(pwmPin, OUTPUT);
     pinMode(in1Pin, OUTPUT);
@@ -34,28 +64,28 @@ void Motor::setup() {
     #ifdef ESP32
     ledcSetup(0, PWM_FREQUENCY, PWM_RESOLUTION);
     ledcSetup(1, PWM_FREQUENCY, PWM_RESOLUTION);
-    ledcAttachPin(A.pwmPin, 0);
-    ledcAttachPin(B.pwmPin, 1);
+    ledcAttachPin(A.pwmPin, A.pwmChannel);
+    ledcAttachPin(B.pwmPin, B.pwmChannel);
     #endif
 
-    A.free();
+    A.free();   
     B.free();
 }
 
-void Motor::setSpeed(byte speed) {
-    speed = constrain(speed, 0, MAX_SPEED);
+void Motor::setSpeed(short int speed) {
+    speed = constrain(speed, -MAX_SPEED, MAX_SPEED);
     currentSpeed = speed;
 
     stby(false);
     if (speed > 0) {
         digitalWrite(in1Pin, HIGH);
         digitalWrite(in2Pin, LOW);
-        analogWrite(pwmPin, speed);
+        ledcWrite(pwmChannel, speed);
     }
     else if (speed < 0) {
         digitalWrite(in1Pin, LOW);
         digitalWrite(in2Pin, HIGH);
-        analogWrite(pwmPin, speed);
+        ledcWrite(pwmChannel, -speed);
     }
     else {
         free();
@@ -65,7 +95,7 @@ void Motor::setSpeed(byte speed) {
 void Motor::free() {
     digitalWrite(in1Pin, LOW);
     digitalWrite(in2Pin, LOW);
-    analogWrite(pwmPin, 0);
+    ledcWrite(pwmChannel, 0);
     currentSpeed = 0;
     stby(true);
 }
@@ -73,7 +103,7 @@ void Motor::free() {
 void Motor::brake() {
     digitalWrite(in1Pin, HIGH);
     digitalWrite(in2Pin, HIGH);
-    analogWrite(pwmPin, 0);
+    ledcWrite(pwmChannel, 0);
     currentSpeed = 0;
     stby(true);
 }
@@ -81,8 +111,6 @@ void Motor::brake() {
 void Motor::stby(bool enable) {
     if (enable) {
         digitalWrite(STBY, LOW);
-        A.currentSpeed = 0;
-        B.currentSpeed = 0;
     }
     else {
         digitalWrite(STBY, HIGH);
@@ -90,10 +118,14 @@ void Motor::stby(bool enable) {
 }
 
 void Motor::update() {
-    float dt = xLoopPeriod;
-    rpm = (encoderCount / (float) ENCODER_PPR) * (60.0/dt);
+    uint8_t tick;
+    unsigned long encoderCount = 0;
+    while (xQueueReceive(encoderQueue, &tick, 0) == pdTRUE) {
+        encoderCount++;
+    }
+
+    rpm = ((float) encoderCount /(float) ENCODER_PPR) * (60.0/dt);
     velocity = rpm * (circumference/60.0);
-    resetEncoder();
 }
 
 void Motor::taskLoop() {
@@ -106,27 +138,7 @@ void Motor::taskLoop() {
 }
 
 void Motor::taskTrampoline(void* pvParameters) {
-    Motor* instance = static_cast<Motor*>(pvParameters);
-    
-    instance->taskLoop();
+    taskLoop();
 
     vTaskDelete(NULL);
-}
-
-void IRAM_ATTR LEFT_ISR() {
-    A.ping();
-}
-
-void IRAM_ATTR RIGHT_ISR() {
-    B.ping();
-}
-
-void Motor::ping() {
-    encoderCount++;
-}
-
-void Motor::resetEncoder() {
-    noInterrupts();
-    encoderCount = 0;
-    interrupts();
 }
