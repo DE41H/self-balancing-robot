@@ -1,7 +1,7 @@
 Part,Type,Quantity,Price,Link,Status,Notes
 MPU-6050,IMU,1,₹169.00,https://robu.in/product/mpu-6050-gyro-sensor-2-accelerometer/,In stock,Most standard and cost efficient option available
-GA12-N20,Motor,2,₹239.00,https://robu.in/product/n20-6v-100-rpm-micro-metal-gear-box-dc-motor-2/c-motor-2/,Out of stock,Provides enough torque and rpm to balance the robot
-ESP32,MCU,1,₹257.00,"https://robu.in/product/n20-6v-100-rpm-micro-metal-gear-box-dc-motor-2/",In stock,Has excess processing power to handle the PID loop
+GA12-N20,Motor,2,₹239.00,https://robu.in/product/n20-6v-100-rpm-micro-metal-gear-box-dc-motor-2/,Out of stock,Provides enough torque and rpm to balance the robot
+ESP32,MCU,1,₹257.00,https://robu.in/product/n20-6v-100-rpm-micro-metal-gear-box-dc-motor-2/,In stock,Has excess processing power to handle the PID loop
 TB6612FNG,Motor Driver,1,₹161.00,https://robu.in/product/motor-driver-tb6612fng-module-performance-ultra-small-volume-3-pi-matching-performance-ultra-l298n/,In stock,Very efficient motor driver
 2s LiPo,Battery,1,₹781.00,https://robu.in/product/bonka-7-4v-600mah-45c-2s-lithium-polymer-battery-pack/,Out of stock,"Standard choice, sufficient to power all our components"
 LM2596,Buck Converter,1,₹41.00,https://robu.in/product/lm2596s-dc-dc-buck-converter-power-supply/,In stock,Buck converter required to step down battery voltage to use with ESP
