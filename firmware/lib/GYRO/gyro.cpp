@@ -1,28 +1,28 @@
 #include <gyro.hpp>
 
-const TickType_t xLoopPeriod = (1000 / Gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
+static const TickType_t xLoopPeriod = (1000 / Gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
 
 Gyro::Gyro() {
 
 }
 
 bool Gyro::begin() {
-    pitchQueue = xQueueCreate(1, sizeof(float));
-    if (pitchQueue == NULL) {
+    _pitchQueue = xQueueCreate(1, sizeof(float));
+    if (_pitchQueue == NULL) {
         Serial.println("Failed to create pitch queue!");
         return false;
     }
-    yawQueue = xQueueCreate(1, sizeof(float));
-    if (yawQueue == NULL) {
+    _yawQueue = xQueueCreate(1, sizeof(float));
+    if (_yawQueue == NULL) {
         Serial.println("Failed to create yaw queue!");
-        vQueueDelete(pitchQueue); 
+        vQueueDelete(_pitchQueue); 
         return false;
     }
 
     if (!setup()) {
         Serial.println("IMU Hardware Setup Failed!");
-        vQueueDelete(pitchQueue);
-        vQueueDelete(yawQueue);
+        vQueueDelete(_pitchQueue);
+        vQueueDelete(_yawQueue);
         return false;
     }
     else {
@@ -35,13 +35,13 @@ bool Gyro::begin() {
         TASK_STACK_SIZE,
         this,
         TASK_PRIORITY,
-        &taskHandle,
+        &_taskHandle,
         TASK_CORE_ID
     );
     if (taskCreated != pdPASS) {
         Serial.println("Failed to create gyro task!");
-        vQueueDelete(pitchQueue);
-        vQueueDelete(yawQueue);
+        vQueueDelete(_pitchQueue);
+        vQueueDelete(_yawQueue);
         return false;
     }
 
@@ -49,56 +49,57 @@ bool Gyro::begin() {
 }
 
 void Gyro::update() {
-    mpu.getEvent(&a, &g, &temp);
-    filter.updateIMU(
-        g.gyro.x - offset.x,
-        g.gyro.y - offset.y,
-        g.gyro.z - offset.z,
-        a.acceleration.x,
-        a.acceleration.y,
-        a.acceleration.z
+    _mpu.getEvent(&_a, &_g, &_temp);
+    _filter.updateIMU(
+        _g.gyro.x - _offset.x,
+        _g.gyro.y - _offset.y,
+        _g.gyro.z - _offset.z,
+        _a.acceleration.x,
+        _a.acceleration.y,
+        _a.acceleration.z
     );
     
-    float currentPitch = filter.getPitch();
-    float currentYaw = filter.getYaw();
+    float currentPitch = _filter.getPitch();
+    float currentYaw = _filter.getYaw();
     
-    xQueueOverwrite(pitchQueue, &currentPitch);
-    xQueueOverwrite(yawQueue, &currentYaw);
+    xQueueOverwrite(_pitchQueue, &currentPitch);
+    xQueueOverwrite(_yawQueue, &currentYaw);
 }
 
 void Gyro::calibrate() {
     float sumX = 0, sumY = 0, sumZ = 0;
     
     for (int i = 0; i < CALIBRATION_SAMPLES; i++) {
-        mpu.getEvent(&a, &g, &temp);
-        sumX += g.gyro.x;
-        sumY += g.gyro.y;
-        sumZ += g.gyro.z;
-        delay(CALIBRATION_DELAY_MS);
+        _mpu.getEvent(&_a, &_g, &_temp);
+        sumX += _g.gyro.x;
+        sumY += _g.gyro.y;
+        sumZ += _g.gyro.z;
+        vTaskDelay(pdMS_TO_TICKS(CALIBRATION_DELAY_MS));
     }
     
-    offset.x = sumX / CALIBRATION_SAMPLES;
-    offset.y = sumY / CALIBRATION_SAMPLES;
-    offset.z = sumZ / CALIBRATION_SAMPLES;
+    _offset.x = sumX / CALIBRATION_SAMPLES;
+    _offset.y = sumY / CALIBRATION_SAMPLES;
+    _offset.z = sumZ / CALIBRATION_SAMPLES;
 }
 
 bool Gyro::setup() {
     Wire.begin();
+    Wire.setClock(400000);
 
-    if (!mpu.begin()) {
+    if (!_mpu.begin()) {
         return false;
     }
 
-    mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-    mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-    mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+    _mpu.setAccelerometerRange(ACCEL_RANGE);
+    _mpu.setGyroRange(GYRO_RANGE);
+    _mpu.setFilterBandwidth(FILTER_BAND);
 
-    offset = {0, 0, 0};
+    _offset = {0, 0, 0};
     Serial.println("Calibrating IMU...");
     calibrate();
     Serial.println("Finished Calibrating IMU");
 
-    filter.begin(SAMPLE_FREQ_HZ);
+    _filter.begin(SAMPLE_FREQ_HZ);
 
     return true;
 }
