@@ -2,7 +2,9 @@
 
 static const TickType_t xLoopPeriod = (1000 / Gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
 
-Gyro::Gyro() {
+Gyro::Gyro():
+_offset({0, 0, 0})
+{
 
 }
 
@@ -93,8 +95,7 @@ bool Gyro::setup() {
     _mpu.setAccelerometerRange(ACCEL_RANGE);
     _mpu.setGyroRange(GYRO_RANGE);
     _mpu.setFilterBandwidth(FILTER_BAND);
-
-    _offset = {0, 0, 0};
+    
     Serial.println("Calibrating IMU...");
     calibrate();
     Serial.println("Finished Calibrating IMU");
