@@ -5,3 +5,4 @@ vscode
 .venv
 venv
 *.DS_Store
+hardware/schematics/self-balancing-robot/self-balancing-robot-backups/
