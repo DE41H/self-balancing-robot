@@ -15,7 +15,6 @@ class Gyro {
         static constexpr int SAMPLE_FREQ_HZ = 100;
         
         bool begin();
-
         QueueHandle_t getPitchQueue() const { return _pitchQueue; }
         QueueHandle_t getYawQueue() const { return _yawQueue; }
 
@@ -44,5 +43,6 @@ class Gyro {
         void taskLoop();
         void calibrate();
         void update();
+
         static void taskTrampoline(void *pvParameters);
 };

@@ -1,13 +1,16 @@
 #pragma once
 #include <Arduino.h>
 #include <PID_v1.h>
+#include <gyro.hpp>
 
-class CascadedPID {
+
+class PIDController {
     public:
-        CascadedPID(double ki, double kp, double kd, double setpoint, double min, double max);
+        PIDController(double ki, double kp, double kd, double setpoint, double min, double max);
 
+        void setpoint(double target);
         void compute(float input);
-        QueueHandle_t getOutput() { return _outputQueue; }
+        QueueHandle_t getOutput() const { return _outputQueue; }
 
     private:
         double _setpoint;
