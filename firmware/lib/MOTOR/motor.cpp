@@ -1,6 +1,42 @@
 #include <motor.hpp>
 
-static const TickType_t xLoopPeriod = (1000 / Gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
+static const TickType_t xLoopPeriod = (1000 / Motor::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
+
+#define MOTOR_A_PWM_PIN 25
+#define MOTOR_A_IN1_PIN 26
+#define MOTOR_A_IN2_PIN 27
+#define MOTOR_A_ENCA_PIN 34
+#define MOTOR_A_ENCB_PIN 35
+#define MOTOR_A_PWM_CHAN 0
+#define MOTOR_A_PCNT_UNIT PCNT_UNIT_0
+
+#define MOTOR_B_PWM_PIN 16
+#define MOTOR_B_IN1_PIN 17
+#define MOTOR_B_IN2_PIN 18
+#define MOTOR_B_ENCA_PIN 32
+#define MOTOR_B_ENCB_PIN 33
+#define MOTOR_B_PWM_CHAN 1
+#define MOTOR_B_PCNT_UNIT PCNT_UNIT_1
+
+Motor motorA(
+    MOTOR_A_PWM_PIN,
+    MOTOR_A_PWM_CHAN,
+    MOTOR_A_IN1_PIN,
+    MOTOR_A_IN2_PIN,
+    MOTOR_A_ENCA_PIN,
+    MOTOR_A_ENCB_PIN,
+    MOTOR_A_PCNT_UNIT 
+);
+
+Motor motorB(
+    MOTOR_B_PWM_PIN,
+    MOTOR_B_PWM_CHAN,
+    MOTOR_B_IN1_PIN,
+    MOTOR_B_IN2_PIN,
+    MOTOR_B_ENCA_PIN,
+    MOTOR_B_ENCB_PIN,
+    MOTOR_B_PCNT_UNIT
+);
 
 Motor::Motor(byte pwm, byte channel, byte in1, byte in2, byte encoderA, byte encoderB, pcnt_unit_t pcntUnit):
 _pwmPin(pwm),
@@ -11,13 +47,20 @@ _encoderPinA(encoderA),
 _encoderPinB(encoderB),
 _pcntUnit(pcntUnit),
 _lastPcntCount(0),
-_speedController(KP, KI, KD, 0, -PWM_LIMIT, PWM_LIMIT)
+_input(0),
+_output(0),
+_setpoint(0),
+_rpm(&_input, &_output, &_setpoint, KP, KI, KD, DIRECT)
 {
-    init();
+
 }
 
 void Motor::begin() {
-    setup();
+    A.init();
+    B.init();
+
+    pinMode(STBY_PIN, OUTPUT);
+    stby(false);
 
     xTaskCreatePinnedToCore(
         taskTrampoline,
@@ -29,15 +72,17 @@ void Motor::begin() {
         TASK_CORE_ID
     );
 }
-void Motor::init() {
-    _rpmQueue = xQueueCreate(1, sizeof(float));
-    if (_rpmQueue == NULL) {
-        Serial.println("ERROR: Could not create rpm queue");
-    }
 
+void Motor::init() {
     pinMode(_pwmPin, OUTPUT);
     pinMode(_in1Pin, OUTPUT);
     pinMode(_in2Pin, OUTPUT);
+    ledcSetup(_pwmChannel, PWM_FREQUENCY, PWM_RESOLUTION);
+    ledcAttachPin(_pwmPin, _pwmChannel);
+
+    _rpm.SetOutputLimits(-PWM_LIMIT, PWM_LIMIT);
+    _rpm.SetSampleTime(1000 / SAMPLE_FREQ_HZ);
+    _rpm.SetMode(AUTOMATIC);
 
     if (!setupPCNT()) {
         Serial.printf("Failed to setup PCNT for unit %d\n", _pcntUnit);
@@ -57,7 +102,7 @@ bool Motor::setupPCNT() {
     pcntConfig.hctrl_mode = PCNT_MODE_KEEP;
 
     pcnt_unit_config(&pcntConfig);
-    pcnt_set_filter_value(_pcntUnit, 1023);
+    pcnt_set_filter_value(_pcntUnit, PCNT_FILTER_VALUE);
     pcnt_filter_enable(_pcntUnit);
     pcnt_counter_pause(_pcntUnit);
     pcnt_counter_clear(_pcntUnit);
@@ -66,28 +111,12 @@ bool Motor::setupPCNT() {
     return true;
 }
 
-void Motor::setup() {
-    pinMode(STBY_PIN, OUTPUT);
-    stby(false);
-    
-    #ifdef ESP32
-    ledcSetup(A._pwmChannel, PWM_FREQUENCY, PWM_RESOLUTION);
-    ledcSetup(B._pwmChannel, PWM_FREQUENCY, PWM_RESOLUTION);
-    ledcAttachPin(A._pwmPin, A._pwmChannel);
-    ledcAttachPin(B._pwmPin, B._pwmChannel);
-    #endif
-}
-
-void Motor::setRPM(float RPM) {
-    _speedController.setpoint((double) RPM);
+void Motor::setRPM(double RPM) {
+    _setpoint = RPM;
 }
 
 void Motor::stby(bool enable) {
-    static float bufferA;
-    static float bufferB;
-    xQueuePeek(A._rpmQueue, &bufferA, NULL);
-    xQueuePeek(B._rpmQueue, &bufferB, NULL);
-    if (enable && !bufferA && !bufferB) {
+    if (enable && !A._setpoint && !B._setpoint) {
         digitalWrite(STBY_PIN, LOW);
     }
     else {
@@ -116,12 +145,9 @@ void Motor::update() {
     pcnt_get_counter_value(_pcntUnit, &currentCount);
     int16_t delta = currentCount - _lastPcntCount;
     _lastPcntCount = currentCount;
-    float rpm = (float) delta * RPM_FACTOR;
-    xQueueOverwrite(_rpmQueue, &rpm);
-    _speedController.compute(rpm);
-    float buffer;
-    xQueuePeek(_speedController.getOutput(), &buffer, NULL);
-    drive(buffer);
+    _input = delta * RPM_FACTOR;
+    _rpm.Compute();
+    drive(_output);
 }
 
 void Motor::taskLoop() {
@@ -134,7 +160,7 @@ void Motor::taskLoop() {
 }
 
 void Motor::taskTrampoline(void* pvParameters) {
-    taskLoop();
+    Motor::taskLoop();
 
     vTaskDelete(NULL);
 }
