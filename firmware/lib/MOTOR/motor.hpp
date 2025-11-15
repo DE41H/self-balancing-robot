@@ -9,9 +9,23 @@
 
 class Motor {
     public:
-        Motor(byte pwm, byte channel, byte in1, byte in2, byte encoderA, byte encoderB, pcnt_unit_t pcntUnit);
+        Motor(const byte pwm, const byte channel, const byte in1, const byte in2, const byte encoderA, const byte encoderB, const pcnt_unit_t pcntUnit);
 
         static constexpr int SAMPLE_FREQ_HZ = 100;
+        static constexpr byte MOTOR_A_PWM_PIN = 0;
+        static constexpr byte MOTOR_A_IN1_PIN = 0;
+        static constexpr byte MOTOR_A_IN2_PIN = 0;
+        static constexpr byte MOTOR_A_ENCA_PIN = 0;
+        static constexpr byte MOTOR_A_ENCB_PIN = 0;
+        static constexpr byte MOTOR_A_PWM_CHAN = 0;
+        static constexpr pcnt_unit_t MOTOR_A_PCNT_UNIT = PCNT_UNIT_0;
+        static constexpr byte MOTOR_B_PWM_PIN = 0;
+        static constexpr byte MOTOR_B_IN1_PIN = 0;
+        static constexpr byte MOTOR_B_IN2_PIN = 0;
+        static constexpr byte MOTOR_B_ENCA_PIN = 0;
+        static constexpr byte MOTOR_B_ENCB_PIN = 0;
+        static constexpr byte MOTOR_B_PWM_CHAN = 0;
+        static constexpr pcnt_unit_t MOTOR_B_PCNT_UNIT = PCNT_UNIT_1;
         
         void setRPM(double RPM);
 
@@ -47,7 +61,6 @@ class Motor {
         void update();
         bool setupPCNT();
         void drive(double pwm);
-
 
         static void stby(bool enable);
 

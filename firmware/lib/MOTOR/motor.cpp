@@ -2,43 +2,27 @@
 
 static const TickType_t xLoopPeriod = (1000 / Motor::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
 
-#define MOTOR_A_PWM_PIN 25
-#define MOTOR_A_IN1_PIN 26
-#define MOTOR_A_IN2_PIN 27
-#define MOTOR_A_ENCA_PIN 34
-#define MOTOR_A_ENCB_PIN 35
-#define MOTOR_A_PWM_CHAN 0
-#define MOTOR_A_PCNT_UNIT PCNT_UNIT_0
-
-#define MOTOR_B_PWM_PIN 16
-#define MOTOR_B_IN1_PIN 17
-#define MOTOR_B_IN2_PIN 18
-#define MOTOR_B_ENCA_PIN 32
-#define MOTOR_B_ENCB_PIN 33
-#define MOTOR_B_PWM_CHAN 1
-#define MOTOR_B_PCNT_UNIT PCNT_UNIT_1
-
 Motor motorA(
-    MOTOR_A_PWM_PIN,
-    MOTOR_A_PWM_CHAN,
-    MOTOR_A_IN1_PIN,
-    MOTOR_A_IN2_PIN,
-    MOTOR_A_ENCA_PIN,
-    MOTOR_A_ENCB_PIN,
-    MOTOR_A_PCNT_UNIT 
+    Motor::MOTOR_A_PWM_PIN,
+    Motor::MOTOR_A_PWM_CHAN,
+    Motor::MOTOR_A_IN1_PIN,
+    Motor::MOTOR_A_IN2_PIN,
+    Motor::MOTOR_A_ENCA_PIN,
+    Motor::MOTOR_A_ENCB_PIN,
+    Motor::MOTOR_A_PCNT_UNIT 
 );
 
 Motor motorB(
-    MOTOR_B_PWM_PIN,
-    MOTOR_B_PWM_CHAN,
-    MOTOR_B_IN1_PIN,
-    MOTOR_B_IN2_PIN,
-    MOTOR_B_ENCA_PIN,
-    MOTOR_B_ENCB_PIN,
-    MOTOR_B_PCNT_UNIT
+    Motor::MOTOR_B_PWM_PIN,
+    Motor::MOTOR_B_PWM_CHAN,
+    Motor::MOTOR_B_IN1_PIN,
+    Motor::MOTOR_B_IN2_PIN,
+    Motor::MOTOR_B_ENCA_PIN,
+    Motor::MOTOR_B_ENCB_PIN,
+    Motor::MOTOR_B_PCNT_UNIT
 );
 
-Motor::Motor(byte pwm, byte channel, byte in1, byte in2, byte encoderA, byte encoderB, pcnt_unit_t pcntUnit):
+Motor::Motor(const byte pwm, const byte channel, const byte in1, const byte in2, const byte encoderA, const byte encoderB, const pcnt_unit_t pcntUnit):
 _pwmPin(pwm),
 _in1Pin(in1),
 _in2Pin(in2),
@@ -152,7 +136,7 @@ void Motor::update() {
 
 void Motor::taskLoop() {
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    while (1) {
+    while (true) {
         A.update();
         B.update();
         xTaskDelayUntil(&xLastWakeTime, xLoopPeriod);
