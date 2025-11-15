@@ -46,7 +46,7 @@ void Motor::begin() {
     pinMode(STBY_PIN, OUTPUT);
     stby(false);
 
-    xTaskCreatePinnedToCore(
+    BaseType_t taskCreated = xTaskCreatePinnedToCore(
         taskTrampoline,
         "Motor Task",
         TASK_STACK_SIZE,
@@ -55,6 +55,10 @@ void Motor::begin() {
         &_taskHandle,
         TASK_CORE_ID
     );
+    if (taskCreated != pdPASS) {
+        Serial.println("Failed to create motor task!");
+        return;
+    }
 }
 
 void Motor::init() {
