@@ -86,7 +86,7 @@ void Gyro::calibrate() {
 
 bool Gyro::setup() {
     Wire.begin();
-    Wire.setClock(400000);
+    Wire.setClock(WIRE_CLOCK);
 
     if (!_mpu.begin()) {
         return false;
@@ -107,7 +107,7 @@ bool Gyro::setup() {
 
 void Gyro::taskLoop() {
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    while (1) {
+    while (true) {
         update();
         xTaskDelayUntil(&xLastWakeTime, xLoopPeriod);
     }

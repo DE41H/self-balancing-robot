@@ -24,6 +24,7 @@ class Gyro {
         static constexpr int TASK_CORE_ID = 0;
         static constexpr int CALIBRATION_SAMPLES = 500;
         static constexpr int CALIBRATION_DELAY_MS = 5;
+        static constexpr int WIRE_CLOCK = 400000;
         static constexpr mpu6050_accel_range_t ACCEL_RANGE = MPU6050_RANGE_8_G;
         static constexpr mpu6050_gyro_range_t GYRO_RANGE = MPU6050_RANGE_500_DEG;
         static constexpr mpu6050_bandwidth_t FILTER_BAND = MPU6050_BAND_44_HZ;
