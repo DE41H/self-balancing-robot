@@ -15,7 +15,7 @@ void PIDController::init(const double min, const double max) {
     _pid.SetMode(AUTOMATIC);
 }
 
-double PIDController::compute(double input, double setpoint = 0) {
+double PIDController::compute(double input, double setpoint) {
     _input = input;
     _setpoint = setpoint;
     _pid.Compute();

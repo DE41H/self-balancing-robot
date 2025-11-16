@@ -40,6 +40,8 @@ bool Motor::begin() {
 
     pinMode(STBY_PIN, OUTPUT);
     stby(false);
+
+    return true;
 }
 
 void Motor::init() {
@@ -82,12 +84,7 @@ void Motor::setRPM(double RPM) {
 }
 
 void Motor::stby(bool enable) {
-    if (enable && !A._currentRPM && !B._currentRPM) {
-        digitalWrite(STBY_PIN, LOW);
-    }
-    else {
-        digitalWrite(STBY_PIN, HIGH);
-    }
+    digitalWrite(STBY_PIN, enable ? HIGH : LOW);
 }
 
 void Motor::drive(double pwm) {
