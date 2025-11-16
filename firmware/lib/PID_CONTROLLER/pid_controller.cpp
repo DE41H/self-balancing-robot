@@ -16,7 +16,8 @@ void PIDController::init(const double min, const double max) {
     _pid.SetMode(AUTOMATIC);
 }
 
-double PIDController::compute() {
+double PIDController::compute(double setpoint = 0) {
+    _setpoint = setpoint;
     double buffer;
     _input = xQueuePeek(_inputQueue, &buffer, NULL);
     _pid.Compute();

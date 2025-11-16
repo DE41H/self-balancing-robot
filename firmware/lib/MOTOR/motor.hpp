@@ -1,10 +1,10 @@
 #pragma once
 #include <Arduino.h>
-#include <PID_v1.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "driver/pcnt.h"
 #include "driver/ledc.h"
+#include <pid_controller.hpp>
 
 
 class Motor {
@@ -29,7 +29,7 @@ class Motor {
         
         void setRPM(double RPM);
 
-        static void begin();
+        static bool begin();
 
     private:
         static constexpr int TASK_STACK_SIZE = 4096;
@@ -52,10 +52,9 @@ class Motor {
 
         static TaskHandle_t _taskHandle;
 
-        double _input;
-        double _output;
-        double _setpoint;
-        PID _rpm;
+        QueueHandle_t _currentRpmQueue;
+        QueueHandle_t _targetRpmQueue;
+        PIDController _rpm;
 
         void init();
         void update();

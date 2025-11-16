@@ -1,8 +1,6 @@
 #include <motor.hpp>
 
-static const TickType_t xLoopPeriod = (1000 / Motor::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
-
-Motor motorA(
+Motor A(
     Motor::MOTOR_A_PWM_PIN,
     Motor::MOTOR_A_PWM_CHAN,
     Motor::MOTOR_A_IN1_PIN,
@@ -12,7 +10,7 @@ Motor motorA(
     Motor::MOTOR_A_PCNT_UNIT 
 );
 
-Motor motorB(
+Motor B(
     Motor::MOTOR_B_PWM_PIN,
     Motor::MOTOR_B_PWM_CHAN,
     Motor::MOTOR_B_IN1_PIN,
@@ -31,15 +29,12 @@ _encoderPinA(encoderA),
 _encoderPinB(encoderB),
 _pcntUnit(pcntUnit),
 _lastPcntCount(0),
-_input(0),
-_output(0),
-_setpoint(0),
-_rpm(&_input, &_output, &_setpoint, KP, KI, KD, DIRECT)
+_rpm(KP, KI, KD, -PWM_LIMIT, +PWM_LIMIT, _currentRpmQueue)
 {
 
 }
 
-void Motor::begin() {
+bool Motor::begin() {
     A.init();
     B.init();
 
@@ -57,23 +52,38 @@ void Motor::begin() {
     );
     if (taskCreated != pdPASS) {
         Serial.println("Failed to create motor task!");
-        return;
+        vQueueDelete(A._targetRpmQueue);
+        vQueueDelete(A._currentRpmQueue);
+        vQueueDelete(B._targetRpmQueue);
+        vQueueDelete(B._currentRpmQueue);
+        return false;
     }
+    return true;
 }
 
 void Motor::init() {
+    _targetRpmQueue = xQueueCreate(1, sizeof(float));
+    if (_targetRpmQueue == NULL) {
+        Serial.println("Failed to create pitch queue!");
+        return;
+    }
+    _currentRpmQueue = xQueueCreate(1, sizeof(float));
+    if (_currentRpmQueue == NULL) {
+        Serial.println("Failed to create yaw queue!");
+        vQueueDelete(_targetRpmQueue); 
+        return;
+    }
+
     pinMode(_pwmPin, OUTPUT);
     pinMode(_in1Pin, OUTPUT);
     pinMode(_in2Pin, OUTPUT);
     ledcSetup(_pwmChannel, PWM_FREQUENCY, PWM_RESOLUTION);
     ledcAttachPin(_pwmPin, _pwmChannel);
 
-    _rpm.SetOutputLimits(-PWM_LIMIT, PWM_LIMIT);
-    _rpm.SetSampleTime(1000 / SAMPLE_FREQ_HZ);
-    _rpm.SetMode(AUTOMATIC);
-
     if (!setupPCNT()) {
         Serial.printf("Failed to setup PCNT for unit %d\n", _pcntUnit);
+        vQueueDelete(_targetRpmQueue);
+        vQueueDelete(_currentRpmQueue);
     }
 }
 
@@ -100,11 +110,15 @@ bool Motor::setupPCNT() {
 }
 
 void Motor::setRPM(double RPM) {
-    _setpoint = RPM;
+    xQueueOverwrite(_targetRpmQueue, &RPM);
 }
 
 void Motor::stby(bool enable) {
-    if (enable && !A._setpoint && !B._setpoint) {
+    double bufferRPMA;
+    double bufferRPMB;
+    xQueuePeek(A._currentRpmQueue, &bufferRPMA, NULL);
+    xQueuePeek(B._currentRpmQueue, &bufferRPMB, NULL);
+    if (enable && !bufferRPMA && !bufferRPMB) {
         digitalWrite(STBY_PIN, LOW);
     }
     else {
@@ -133,12 +147,15 @@ void Motor::update() {
     pcnt_get_counter_value(_pcntUnit, &currentCount);
     int16_t delta = currentCount - _lastPcntCount;
     _lastPcntCount = currentCount;
-    _input = delta * RPM_FACTOR;
-    _rpm.Compute();
-    drive(_output);
+    double currentRpm = delta * RPM_FACTOR;
+    xQueueOverwrite(_currentRpmQueue, &currentRpm);
+    double targetRpm;
+    xQueuePeek(_targetRpmQueue, &targetRpm, NULL);
+    drive(_rpm.compute(targetRpm));
 }
 
 void Motor::taskLoop() {
+    static const TickType_t xLoopPeriod = (1000 / Motor::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (true) {
         A.update();
