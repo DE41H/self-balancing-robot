@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <PID_v1.h>
+#include <config.hpp>
 
 
 class PIDController {
@@ -10,9 +11,6 @@ class PIDController {
         double compute(double input, double setpoint);
     
     private:
-        static constexpr int SAMPLE_FREQ_HZ = 100;
-        static constexpr int SAMPLE_TIME = 1000 / SAMPLE_FREQ_HZ;
-
         double _input;
         double _output;
         double _setpoint;

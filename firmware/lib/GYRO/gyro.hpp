@@ -6,31 +6,20 @@
 #include <Adafruit_AHRS.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include <config.hpp>
 
 
 class Gyro {
     public:
         Gyro();
-
-        static constexpr int SAMPLE_FREQ_HZ = 100;
         
         bool begin();
         QueueHandle_t getPitchQueue() const { return _pitchQueue; }
         QueueHandle_t getYawQueue() const { return _yawQueue; }
 
     private:
-        static constexpr int TASK_STACK_SIZE = 4096;
-        static constexpr int TASK_PRIORITY = 10;
-        static constexpr int TASK_CORE_ID = 0;
-        static constexpr int CALIBRATION_SAMPLES = 500;
-        static constexpr int CALIBRATION_DELAY_MS = 5;
-        static constexpr int WIRE_CLOCK = 400000;
-        static constexpr mpu6050_accel_range_t ACCEL_RANGE = MPU6050_RANGE_8_G;
-        static constexpr mpu6050_gyro_range_t GYRO_RANGE = MPU6050_RANGE_500_DEG;
-        static constexpr mpu6050_bandwidth_t FILTER_BAND = MPU6050_BAND_44_HZ;
-
         Adafruit_MPU6050 _mpu;
-        Adafruit_Madgwick _filter;
+        Adafruit_Mahony _filter;
         sensors_event_t _a, _g, _temp;
         QueueHandle_t _pitchQueue;
         QueueHandle_t _yawQueue;

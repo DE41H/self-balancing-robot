@@ -2,28 +2,13 @@
 #include <gyro.hpp>
 #include <motor.hpp>
 #include <pid_controller.hpp>
+#include <config.hpp>
 
-static constexpr int SAMPLE_FREQ_HZ = 100;
-static constexpr int TASK_STACK_SIZE = 4096;
-static constexpr int TASK_PRIORITY = 0;
-static constexpr int TASK_CORE_ID = 0;
-static TaskHandle_t TASK_HANDLE;
-
-static constexpr double BALANCE_KP = 0.0;
-static constexpr double BALANCE_KI = 0.0;
-static constexpr double BALANCE_KD = 0.0;
-static constexpr double BALANCE_MIN = 0.0;
-static constexpr double BALANCE_MAX = 0.0;
-
-static constexpr double TURN_KP = 0.0;
-static constexpr double TURN_KI = 0.0;
-static constexpr double TURN_KD = 0.0;
-static constexpr double TURN_MIN = 0.0;
-static constexpr double TURN_MAX = 0.0;
+static TaskHandle_t taskHandle;
 
 Gyro gyro = Gyro();
-PIDController balance = PIDController(BALANCE_KP, BALANCE_KI, BALANCE_KP, BALANCE_MIN, BALANCE_MAX);
-PIDController turn = PIDController(TURN_KP, TURN_KI, TURN_KP, TURN_MIN, TURN_MAX);
+PIDController balance = PIDController(Config::BALANCE_KP, Config::BALANCE_KI, Config::BALANCE_KD, Config::BALANCE_MIN, Config::BALANCE_MAX);
+PIDController turn = PIDController(Config::TURN_KP, Config::TURN_KI, Config::TURN_KP, Config::TURN_MIN, Config::TURN_MAX);
 
 void update() {
     double balanceInput;
@@ -41,7 +26,7 @@ void update() {
 }
 
 void taskLoop() {
-    static const TickType_t xLoopPeriod = (1000 / SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
+    static const TickType_t xLoopPeriod = (1000 / Config::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (true) {
         update();
@@ -63,11 +48,11 @@ void setup() {
     BaseType_t taskCreated = xTaskCreatePinnedToCore(
         taskTrampoline,
         "Main Task",
-        TASK_STACK_SIZE,
+        Config::MAIN_TASK_STACK_SIZE,
         NULL,
-        TASK_PRIORITY,
-        &TASK_HANDLE,
-        TASK_CORE_ID
+        Config::MAIN_TASK_PRIORITY,
+        &taskHandle,
+        Config::MAIN_TASK_CORE_ID
     );
     if (taskCreated != pdPASS) {
         Serial.println("Failed to create motor task!");

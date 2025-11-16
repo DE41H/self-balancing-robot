@@ -10,7 +10,7 @@ _pid(&_input, &_output, &_setpoint, kp, ki, kd, DIRECT)
 }
 
 void PIDController::init(const double min, const double max) {
-    _pid.SetSampleTime(SAMPLE_TIME);
+    _pid.SetSampleTime(Config::SAMPLE_TIME);
     _pid.SetOutputLimits(min, max);
     _pid.SetMode(AUTOMATIC);
 }

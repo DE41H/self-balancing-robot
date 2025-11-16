@@ -1,23 +1,23 @@
 #include <motor.hpp>
 
 Motor A(
-    Motor::MOTOR_A_PWM_PIN,
-    Motor::MOTOR_A_PWM_CHAN,
-    Motor::MOTOR_A_IN1_PIN,
-    Motor::MOTOR_A_IN2_PIN,
-    Motor::MOTOR_A_ENCA_PIN,
-    Motor::MOTOR_A_ENCB_PIN,
-    Motor::MOTOR_A_PCNT_UNIT 
+    Config::MOTOR_A_PWM_PIN,
+    Config::MOTOR_A_PWM_CHAN,
+    Config::MOTOR_A_IN1_PIN,
+    Config::MOTOR_A_IN2_PIN,
+    Config::MOTOR_A_ENCA_PIN,
+    Config::MOTOR_A_ENCB_PIN,
+    Config::MOTOR_A_PCNT_UNIT 
 );
 
 Motor B(
-    Motor::MOTOR_B_PWM_PIN,
-    Motor::MOTOR_B_PWM_CHAN,
-    Motor::MOTOR_B_IN1_PIN,
-    Motor::MOTOR_B_IN2_PIN,
-    Motor::MOTOR_B_ENCA_PIN,
-    Motor::MOTOR_B_ENCB_PIN,
-    Motor::MOTOR_B_PCNT_UNIT
+    Config::MOTOR_B_PWM_PIN,
+    Config::MOTOR_B_PWM_CHAN,
+    Config::MOTOR_B_IN1_PIN,
+    Config::MOTOR_B_IN2_PIN,
+    Config::MOTOR_B_ENCA_PIN,
+    Config::MOTOR_B_ENCB_PIN,
+    Config::MOTOR_B_PCNT_UNIT
 );
 
 Motor::Motor(const byte pwm, const byte channel, const byte in1, const byte in2, const byte encoderA, const byte encoderB, const pcnt_unit_t pcntUnit):
@@ -29,7 +29,7 @@ _encoderPinA(encoderA),
 _encoderPinB(encoderB),
 _pcntUnit(pcntUnit),
 _lastPcntCount(0),
-_rpm(KP, KI, KD, -PWM_LIMIT, +PWM_LIMIT)
+_rpm(Config::SPEED_KP, Config::SPEED_KI, Config::SPEED_KD, -Config::PWM_LIMIT, +Config::PWM_LIMIT)
 {
 
 }
@@ -38,7 +38,7 @@ bool Motor::begin() {
     A.init();
     B.init();
 
-    pinMode(STBY_PIN, OUTPUT);
+    pinMode(Config::STBY_PIN, OUTPUT);
     stby(false);
 
     return true;
@@ -48,7 +48,7 @@ void Motor::init() {
     pinMode(_pwmPin, OUTPUT);
     pinMode(_in1Pin, OUTPUT);
     pinMode(_in2Pin, OUTPUT);
-    ledcSetup(_pwmChannel, PWM_FREQUENCY, PWM_RESOLUTION);
+    ledcSetup(_pwmChannel, Config::PWM_FREQUENCY, Config::PWM_RESOLUTION);
     ledcAttachPin(_pwmPin, _pwmChannel);
 
     if (!setupPCNT()) {
@@ -69,7 +69,7 @@ bool Motor::setupPCNT() {
     pcntConfig.hctrl_mode = PCNT_MODE_KEEP;
 
     pcnt_unit_config(&pcntConfig);
-    pcnt_set_filter_value(_pcntUnit, PCNT_FILTER_VALUE);
+    pcnt_set_filter_value(_pcntUnit, Config::PCNT_FILTER_VALUE);
     pcnt_filter_enable(_pcntUnit);
     pcnt_counter_pause(_pcntUnit);
     pcnt_counter_clear(_pcntUnit);
@@ -84,7 +84,7 @@ void Motor::setRPM(double RPM) {
 }
 
 void Motor::stby(bool enable) {
-    digitalWrite(STBY_PIN, enable ? HIGH : LOW);
+    digitalWrite(Config::STBY_PIN, enable ? HIGH : LOW);
 }
 
 void Motor::drive(double pwm) {
@@ -108,6 +108,6 @@ void Motor::update() {
     pcnt_get_counter_value(_pcntUnit, &currentCount);
     int16_t delta = currentCount - _lastPcntCount;
     _lastPcntCount = currentCount;
-    _currentRPM = delta * RPM_FACTOR;
+    _currentRPM = delta * Config::RPM_FACTOR;
     drive(_rpm.compute(_currentRPM, _targetRPM));
 }

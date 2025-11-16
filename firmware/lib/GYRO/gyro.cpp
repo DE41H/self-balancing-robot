@@ -32,11 +32,11 @@ bool Gyro::begin() {
     BaseType_t taskCreated = xTaskCreatePinnedToCore(
         taskTrampoline,
         "Gyro Task",
-        TASK_STACK_SIZE,
+        Config::GYRO_TASK_STACK_SIZE,
         this,
-        TASK_PRIORITY,
+        Config::GYRO_TASK_PRIORITY,
         &_taskHandle,
-        TASK_CORE_ID
+        Config::GYRO_TASK_CORE_ID
     );
     if (taskCreated != pdPASS) {
         Serial.println("Failed to create gyro task!");
@@ -69,42 +69,42 @@ void Gyro::update() {
 void Gyro::calibrate() {
     float sumX = 0, sumY = 0, sumZ = 0;
     
-    for (int i = 0; i < CALIBRATION_SAMPLES; i++) {
+    for (int i = 0; i < Config::GYRO_CALIBRATION_SAMPLES; i++) {
         _mpu.getEvent(&_a, &_g, &_temp);
         sumX += _g.gyro.x;
         sumY += _g.gyro.y;
         sumZ += _g.gyro.z;
-        vTaskDelay(pdMS_TO_TICKS(CALIBRATION_DELAY_MS));
+        vTaskDelay(pdMS_TO_TICKS(Config::GYRO_CALIBRATION_DELAY_MS));
     }
     
-    _offset.x = sumX / CALIBRATION_SAMPLES;
-    _offset.y = sumY / CALIBRATION_SAMPLES;
-    _offset.z = sumZ / CALIBRATION_SAMPLES;
+    _offset.x = sumX / Config::GYRO_CALIBRATION_SAMPLES;
+    _offset.y = sumY / Config::GYRO_CALIBRATION_SAMPLES;
+    _offset.z = sumZ / Config::GYRO_CALIBRATION_SAMPLES;
 }
 
 bool Gyro::setup() {
-    Wire.begin();
-    Wire.setClock(WIRE_CLOCK);
+    Wire.begin(Config::SDA_PIN, Config::SCL_PIN);
+    Wire.setClock(Config::WIRE_CLOCK);
 
     if (!_mpu.begin()) {
         return false;
     }
 
-    _mpu.setAccelerometerRange(ACCEL_RANGE);
-    _mpu.setGyroRange(GYRO_RANGE);
-    _mpu.setFilterBandwidth(FILTER_BAND);
+    _mpu.setAccelerometerRange(Config::ACCEL_RANGE);
+    _mpu.setGyroRange(Config::GYRO_RANGE);
+    _mpu.setFilterBandwidth(Config::FILTER_BAND);
     
     Serial.println("Calibrating IMU...");
     calibrate();
     Serial.println("Finished Calibrating IMU");
 
-    _filter.begin(SAMPLE_FREQ_HZ);
+    _filter.begin(Config::SAMPLE_FREQ_HZ);
 
     return true;
 }
 
 void Gyro::taskLoop() {
-    static const TickType_t xLoopPeriod = (1000 / Gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
+    static const TickType_t xLoopPeriod = (1000 / Config::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (true) {
         update();
