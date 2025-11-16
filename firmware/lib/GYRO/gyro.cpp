@@ -1,7 +1,5 @@
 #include <gyro.hpp>
 
-static const TickType_t xLoopPeriod = (1000 / Gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
-
 Gyro::Gyro():
 _offset({0, 0, 0})
 {
@@ -106,6 +104,7 @@ bool Gyro::setup() {
 }
 
 void Gyro::taskLoop() {
+    static const TickType_t xLoopPeriod = (1000 / Gyro::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
     TickType_t xLastWakeTime = xTaskGetTickCount();
     while (true) {
         update();

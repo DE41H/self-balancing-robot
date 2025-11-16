@@ -52,8 +52,8 @@ class Motor {
 
         static TaskHandle_t _taskHandle;
 
-        QueueHandle_t _currentRpmQueue;
-        QueueHandle_t _targetRpmQueue;
+        double _currentRPM;
+        double _targetRPM;
         PIDController _rpm;
 
         void init();
@@ -62,9 +62,6 @@ class Motor {
         void drive(double pwm);
 
         static void stby(bool enable);
-
-        static void taskLoop();
-        static void taskTrampoline(void *pvParameters);
 };
 
 

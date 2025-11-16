@@ -29,7 +29,7 @@ _encoderPinA(encoderA),
 _encoderPinB(encoderB),
 _pcntUnit(pcntUnit),
 _lastPcntCount(0),
-_rpm(KP, KI, KD, -PWM_LIMIT, +PWM_LIMIT, _currentRpmQueue)
+_rpm(KP, KI, KD, -PWM_LIMIT, +PWM_LIMIT)
 {
 
 }
@@ -40,40 +40,9 @@ bool Motor::begin() {
 
     pinMode(STBY_PIN, OUTPUT);
     stby(false);
-
-    BaseType_t taskCreated = xTaskCreatePinnedToCore(
-        taskTrampoline,
-        "Motor Task",
-        TASK_STACK_SIZE,
-        NULL,
-        TASK_PRIORITY,
-        &_taskHandle,
-        TASK_CORE_ID
-    );
-    if (taskCreated != pdPASS) {
-        Serial.println("Failed to create motor task!");
-        vQueueDelete(A._targetRpmQueue);
-        vQueueDelete(A._currentRpmQueue);
-        vQueueDelete(B._targetRpmQueue);
-        vQueueDelete(B._currentRpmQueue);
-        return false;
-    }
-    return true;
 }
 
 void Motor::init() {
-    _targetRpmQueue = xQueueCreate(1, sizeof(float));
-    if (_targetRpmQueue == NULL) {
-        Serial.println("Failed to create pitch queue!");
-        return;
-    }
-    _currentRpmQueue = xQueueCreate(1, sizeof(float));
-    if (_currentRpmQueue == NULL) {
-        Serial.println("Failed to create yaw queue!");
-        vQueueDelete(_targetRpmQueue); 
-        return;
-    }
-
     pinMode(_pwmPin, OUTPUT);
     pinMode(_in1Pin, OUTPUT);
     pinMode(_in2Pin, OUTPUT);
@@ -82,8 +51,6 @@ void Motor::init() {
 
     if (!setupPCNT()) {
         Serial.printf("Failed to setup PCNT for unit %d\n", _pcntUnit);
-        vQueueDelete(_targetRpmQueue);
-        vQueueDelete(_currentRpmQueue);
     }
 }
 
@@ -110,15 +77,12 @@ bool Motor::setupPCNT() {
 }
 
 void Motor::setRPM(double RPM) {
-    xQueueOverwrite(_targetRpmQueue, &RPM);
+    _targetRPM = RPM;
+    update();
 }
 
 void Motor::stby(bool enable) {
-    double bufferRPMA;
-    double bufferRPMB;
-    xQueuePeek(A._currentRpmQueue, &bufferRPMA, NULL);
-    xQueuePeek(B._currentRpmQueue, &bufferRPMB, NULL);
-    if (enable && !bufferRPMA && !bufferRPMB) {
+    if (enable && !A._currentRPM && !B._currentRPM) {
         digitalWrite(STBY_PIN, LOW);
     }
     else {
@@ -147,25 +111,6 @@ void Motor::update() {
     pcnt_get_counter_value(_pcntUnit, &currentCount);
     int16_t delta = currentCount - _lastPcntCount;
     _lastPcntCount = currentCount;
-    double currentRpm = delta * RPM_FACTOR;
-    xQueueOverwrite(_currentRpmQueue, &currentRpm);
-    double targetRpm;
-    xQueuePeek(_targetRpmQueue, &targetRpm, NULL);
-    drive(_rpm.compute(targetRpm));
-}
-
-void Motor::taskLoop() {
-    static const TickType_t xLoopPeriod = (1000 / Motor::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    while (true) {
-        A.update();
-        B.update();
-        xTaskDelayUntil(&xLastWakeTime, xLoopPeriod);
-    }
-}
-
-void Motor::taskTrampoline(void* pvParameters) {
-    Motor::taskLoop();
-
-    vTaskDelete(NULL);
+    _currentRPM = delta * RPM_FACTOR;
+    drive(_rpm.compute(_currentRPM, _targetRPM));
 }
