@@ -26,6 +26,10 @@ void update() {
     B.setRPM(balanceOutput - turnOutput);
 }
 
+void loop() {
+    
+}
+
 void taskLoop() {
     while (true) {
         update();

@@ -1,5 +1,6 @@
 #pragma once
 #include <driver/pcnt.h>
+#include <Adafruit_MPU6050.h>
 
 
 namespace Config {
