@@ -1,20 +1,20 @@
 #pragma once
 #include <Arduino.h>
-#include <PID_v1.h>
+#include <QuickPID.h>
 #include <config.hpp>
 
 
 class PIDController {
     public:
-        PIDController(const double kp, const double ki, const double kd, const double min, const double max);
+        PIDController(const float kp, const float ki, const float kd, const float min, const float max);
 
-        double compute(double input, double setpoint);
+        float compute(float input, float setpoint);
     
     private:
-        double _input;
-        double _output;
-        double _setpoint;
-        PID _pid;
+        float _input;
+        float _output;
+        float _setpoint;
+        QuickPID _pid;
 
-        void init(const double min, const double max);
+        void init(const float min, const float max);
 };

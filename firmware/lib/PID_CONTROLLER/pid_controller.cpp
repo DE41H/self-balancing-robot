@@ -1,21 +1,21 @@
 #include <pid_controller.hpp>
 
-PIDController::PIDController(const double kp, const double ki, const double kd, const double min, const double max):
-_input(0),
-_output(0),
-_setpoint(0),
-_pid(&_input, &_output, &_setpoint, kp, ki, kd, DIRECT)
+PIDController::PIDController(const float kp, const float ki, const float kd, const float min, const float max):
+_input(0.0),
+_output(0.0),
+_setpoint(0.0),
+_pid(&_input, &_output, &_setpoint, kp, ki, kd, QuickPID::pMode::pOnError, QuickPID::dMode::dOnMeas, QuickPID::iAwMode::iAwClamp, QuickPID::Action::direct)
 {
     init(min, max);
 }
 
-void PIDController::init(const double min, const double max) {
-    _pid.SetSampleTime(Config::SAMPLE_TIME);
+void PIDController::init(const float min, const float max) {
+    _pid.SetSampleTimeUs(Config::SAMPLE_TIME);
     _pid.SetOutputLimits(min, max);
-    _pid.SetMode(AUTOMATIC);
+    _pid.SetMode(QuickPID::Control::automatic);
 }
 
-double PIDController::compute(double input, double setpoint) {
+float PIDController::compute(float input, float setpoint) {
     _input = input;
     _setpoint = setpoint;
     _pid.Compute();

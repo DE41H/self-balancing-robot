@@ -8,16 +8,16 @@ static TaskHandle_t taskHandle;
 
 Gyro gyro = Gyro();
 PIDController balance = PIDController(Config::BALANCE_KP, Config::BALANCE_KI, Config::BALANCE_KD, Config::BALANCE_MIN, Config::BALANCE_MAX);
-PIDController turn = PIDController(Config::TURN_KP, Config::TURN_KI, Config::TURN_KP, Config::TURN_MIN, Config::TURN_MAX);
+PIDController turn = PIDController(Config::TURN_KP, Config::TURN_KI, Config::TURN_KD, Config::TURN_MIN, Config::TURN_MAX);
 
 void update() {
-    double balanceInput;
-    double turnInput;
+    float balanceInput;
+    float turnInput;
     xQueueReceive(gyro.getPitchQueue(), &balanceInput, portMAX_DELAY);
     xQueueReceive(gyro.getYawQueue(), &turnInput, portMAX_DELAY);
 
-    double balanceOutput;
-    double turnOutput;
+    float balanceOutput;
+    float turnOutput;
     balanceOutput = balance.compute(balanceInput, 0);
     turnOutput = turn.compute(turnInput, 0);
 
@@ -26,11 +26,8 @@ void update() {
 }
 
 void taskLoop() {
-    static const TickType_t xLoopPeriod = (1000 / Config::SAMPLE_FREQ_HZ) / portTICK_PERIOD_MS;
-    TickType_t xLastWakeTime = xTaskGetTickCount();
     while (true) {
         update();
-        xTaskDelayUntil(&xLastWakeTime, xLoopPeriod);
     }
 }
 

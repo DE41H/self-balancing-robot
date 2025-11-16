@@ -12,7 +12,7 @@ class Motor {
     public:
         Motor(const byte pwm, const byte channel, const byte in1, const byte in2, const byte encoderA, const byte encoderB, const pcnt_unit_t pcntUnit);
         
-        void setRPM(double RPM);
+        void setRPM(float RPM);
 
         static bool begin();
 
@@ -21,14 +21,14 @@ class Motor {
         pcnt_unit_t _pcntUnit;
         int16_t _lastPcntCount;
 
-        double _currentRPM;
-        double _targetRPM;
+        float _currentRPM;
+        float _targetRPM;
         PIDController _rpm;
 
         void init();
         void update();
         bool setupPCNT();
-        void drive(double pwm);
+        void drive(float pwm);
 
         static void stby(bool enable);
 };

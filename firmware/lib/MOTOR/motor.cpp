@@ -78,7 +78,7 @@ bool Motor::setupPCNT() {
     return true;
 }
 
-void Motor::setRPM(double RPM) {
+void Motor::setRPM(float RPM) {
     _targetRPM = RPM;
     update();
 }
@@ -87,7 +87,7 @@ void Motor::stby(bool enable) {
     digitalWrite(Config::STBY_PIN, enable ? HIGH : LOW);
 }
 
-void Motor::drive(double pwm) {
+void Motor::drive(float pwm) {
     if (pwm > 0) {
         digitalWrite(_in1Pin, HIGH);
         digitalWrite(_in2Pin, LOW);
