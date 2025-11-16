@@ -1,9 +1,9 @@
 #include <pid_controller.hpp>
 
 PIDController::PIDController(const float kp, const float ki, const float kd, const float min, const float max):
-_input(0.0),
-_output(0.0),
-_setpoint(0.0),
+_input(0.0f),
+_output(0.0f),
+_setpoint(0.0f),
 _pid(&_input, &_output, &_setpoint, kp, ki, kd, QuickPID::pMode::pOnError, QuickPID::dMode::dOnMeas, QuickPID::iAwMode::iAwClamp, QuickPID::Action::direct)
 {
     init(min, max);

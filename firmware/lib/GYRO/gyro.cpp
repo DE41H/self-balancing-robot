@@ -1,7 +1,7 @@
 #include <gyro.hpp>
 
 Gyro::Gyro():
-_offset({0, 0, 0})
+_offset({0.0f, 0.0f, 0.0f})
 {
 
 }
@@ -24,9 +24,6 @@ bool Gyro::begin() {
         vQueueDelete(_pitchQueue);
         vQueueDelete(_yawQueue);
         return false;
-    }
-    else {
-        Serial.println("MPU-6050 Found!");
     }
 
     BaseType_t taskCreated = xTaskCreatePinnedToCore(
@@ -67,7 +64,7 @@ void Gyro::update() {
 }
 
 void Gyro::calibrate() {
-    float sumX = 0, sumY = 0, sumZ = 0;
+    float sumX = 0.0f, sumY = 0.0f, sumZ = 0.0f;
     
     for (int i = 0; i < Config::GYRO_CALIBRATION_SAMPLES; i++) {
         _mpu.getEvent(&_a, &_g, &_temp);
@@ -94,9 +91,7 @@ bool Gyro::setup() {
     _mpu.setGyroRange(Config::GYRO_RANGE);
     _mpu.setFilterBandwidth(Config::FILTER_BAND);
     
-    Serial.println("Calibrating IMU...");
     calibrate();
-    Serial.println("Finished Calibrating IMU");
 
     _filter.begin(Config::SAMPLE_FREQ_HZ);
 

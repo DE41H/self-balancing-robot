@@ -5,6 +5,7 @@
 #include <config.hpp>
 
 static TaskHandle_t taskHandle;
+float filteredBalanceInput = 0.0f;
 
 Gyro gyro = Gyro();
 PIDController balance = PIDController(Config::BALANCE_KP, Config::BALANCE_KI, Config::BALANCE_KD, Config::BALANCE_MIN, Config::BALANCE_MAX);
@@ -16,10 +17,10 @@ void update() {
     xQueueReceive(gyro.getPitchQueue(), &balanceInput, portMAX_DELAY);
     xQueueReceive(gyro.getYawQueue(), &turnInput, portMAX_DELAY);
 
-    float balanceOutput;
-    float turnOutput;
-    balanceOutput = balance.compute(balanceInput, 0);
-    turnOutput = turn.compute(turnInput, 0);
+    filteredBalanceInput = (Config::EMA_ALPHA * balanceInput) + (1.0f - Config::EMA_ALPHA) * filteredBalanceInput;
+
+    float balanceOutput = balance.compute(filteredBalanceInput, 0.0f);
+    float turnOutput = turn.compute(turnInput, 0.0f);
 
     A.setRPM(balanceOutput + turnOutput);
     B.setRPM(balanceOutput - turnOutput);
