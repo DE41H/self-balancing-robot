@@ -17,7 +17,7 @@ float filteredSpeed = 0.0f;
 int lastPwmA = 0;
 int lastPwmB = 0;
 
-void update() {
+void IRAM_ATTR update() {
     struct Gyro::Data input;
 
     if (xQueueReceive(gyro.getDataQueue(), &input, pdMS_TO_TICKS(Config::MAX_WAIT_MS)) != pdTRUE || abs(input.pitch) > Config::DEADMAN_ANGLE) {
@@ -28,7 +28,7 @@ void update() {
         balance.reset();
         speed.reset();
         turn.reset();
-        
+
         return;
     }
 

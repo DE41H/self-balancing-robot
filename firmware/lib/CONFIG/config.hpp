@@ -3,12 +3,12 @@
 
 
 namespace Config {
-    static constexpr unsigned int SAMPLE_FREQ_HZ = 150;
+    static constexpr unsigned int SAMPLE_FREQ_HZ = 200;
     static constexpr unsigned int SAMPLE_TIME = 1000 / SAMPLE_FREQ_HZ;
 
     static constexpr mpu6050_accel_range_t ACCEL_RANGE = MPU6050_RANGE_8_G;
     static constexpr mpu6050_gyro_range_t GYRO_RANGE = MPU6050_RANGE_500_DEG;
-    static constexpr mpu6050_bandwidth_t FILTER_BAND = MPU6050_BAND_44_HZ;
+    static constexpr mpu6050_bandwidth_t FILTER_BAND = MPU6050_BAND_94_HZ;
 
     static constexpr unsigned int GYRO_TASK_STACK_SIZE = 4096;
     static constexpr unsigned int GYRO_TASK_PRIORITY = 10;

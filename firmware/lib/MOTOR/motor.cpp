@@ -57,7 +57,7 @@ void Motor::init() {
     ledcAttachPin(_pwmPin, _pwmChannel);
 }
 
-void Motor::setPWM(int pwm) {
+void IRAM_ATTR Motor::setPWM(int pwm) {
     if (pwm > Config::PWM_LIMIT) {
         pwm = Config::PWM_LIMIT; 
     } else if (pwm < -Config::PWM_LIMIT) {
@@ -66,11 +66,11 @@ void Motor::setPWM(int pwm) {
     drive(pwm);
 }
 
-void Motor::stby(bool enable) {
+void IRAM_ATTR Motor::stby(bool enable) {
     digitalWrite(Config::STBY_PIN, enable ? HIGH : LOW);
 }
 
-void Motor::drive(int pwm) {
+void IRAM_ATTR Motor::drive(int pwm) {
     if (pwm > 0) {
         digitalWrite(_in1Pin, HIGH);
         digitalWrite(_in2Pin, LOW);
