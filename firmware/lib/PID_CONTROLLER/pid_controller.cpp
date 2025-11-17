@@ -15,6 +15,14 @@ void PIDController::init(const float min, const float max) {
     _pid.SetMode(QuickPID::Control::automatic);
 }
 
+void PIDController::reset() {
+    _pid.SetMode(QuickPID::Control::manual);
+    _output = 0;
+    _input = 0;
+    _setpoint = 0;
+    _pid.SetMode(QuickPID::Control::automatic);
+}
+
 float PIDController::compute(float input, float setpoint) {
     _input = input;
     _setpoint = setpoint;

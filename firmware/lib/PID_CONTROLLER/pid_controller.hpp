@@ -8,6 +8,7 @@ class PIDController {
     public:
         PIDController(const float kp, const float ki, const float kd, const float min, const float max);
 
+        void reset();
         float compute(float input, float setpoint);
     
     private:

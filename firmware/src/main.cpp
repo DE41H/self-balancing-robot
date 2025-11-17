@@ -24,6 +24,11 @@ void update() {
         A.setPWM(0);
         B.setPWM(0);
         Motor::stby(true);
+
+        balance.reset();
+        speed.reset();
+        turn.reset();
+        
         return;
     }
 
