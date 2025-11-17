@@ -72,18 +72,25 @@ void IRAM_ATTR Motor::stby(bool enable) {
 
 void IRAM_ATTR Motor::drive(int pwm) {
     if (pwm > 0) {
+        pwm += Config::MINIMUM_PWM;
         digitalWrite(_in1Pin, HIGH);
         digitalWrite(_in2Pin, LOW);
-        ledcWrite(_pwmChannel, (uint32_t)pwm);
     } else if (pwm < 0) {
+        pwm -= Config::MINIMUM_PWM;
         digitalWrite(_in1Pin, LOW);
         digitalWrite(_in2Pin, HIGH);
-        ledcWrite(_pwmChannel, (uint32_t)(-pwm));
     } else {
         digitalWrite(_in1Pin, HIGH);
         digitalWrite(_in2Pin, HIGH);
-        ledcWrite(_pwmChannel, 0);
     }
+
+    if (pwm > Config::PWM_LIMIT) {
+        pwm = Config::PWM_LIMIT; 
+    } else if (pwm < -Config::PWM_LIMIT) {
+        pwm = -Config::PWM_LIMIT;
+    }
+
+    ledcWrite(_pwmChannel, abs(pwm));
 }
 
 void IRAM_ATTR Motor::ping() {

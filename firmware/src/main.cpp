@@ -51,7 +51,7 @@ void IRAM_ATTR update() {
     filteredSpeed = (Config::SPEED_ALPHA * filteredSpeed) + ((1.0f - Config::SPEED_ALPHA) * rawSpeed);
     float targetPitch = speed.compute(-filteredSpeed, 0.0f);
 
-    struct Gyro::Data output = {balance.compute(input.pitch, targetPitch), turn.compute(input.yaw, 0.0f)};
+    struct Gyro::Data output = {balance.compute(input.pitch, targetPitch + Config::MECHANICAL_OFFSET), turn.compute(input.yaw, 0.0f)};
 
     int pwmA = (int) (output.pitch + output.yaw);
     int pwmB = (int) (output.pitch - output.yaw);

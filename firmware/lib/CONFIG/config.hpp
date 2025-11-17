@@ -31,6 +31,7 @@ namespace Config {
     static constexpr unsigned int MOTOR_B_ENC_PIN = 0;
     static constexpr unsigned int MOTOR_B_PWM_CHAN = 0;
 
+    static constexpr unsigned int MINIMUM_PWM = 0;
     static constexpr unsigned int PWM_FREQUENCY = 20000;
     static constexpr unsigned int PWM_RESOLUTION = 8;
     static constexpr unsigned int PWM_LIMIT = (1 << PWM_RESOLUTION) - 1;
@@ -63,4 +64,6 @@ namespace Config {
 
     static constexpr float DEADMAN_ANGLE = 70.0f;
     static constexpr unsigned int MAX_WAIT_MS = 20;
+
+    static constexpr float MECHANICAL_OFFSET = 0.0f;
 };
