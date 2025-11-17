@@ -61,7 +61,7 @@ void Gyro::calibrate() {
         sumX += _g.gyro.x;
         sumY += _g.gyro.y;
         sumZ += _g.gyro.z;
-        vTaskDelay(pdMS_TO_TICKS(Config::GYRO_CALIBRATION_DELAY_MS));
+        delay(Config::GYRO_CALIBRATION_DELAY_MS);
     }
     
     _offset.x = sumX / Config::GYRO_CALIBRATION_SAMPLES;

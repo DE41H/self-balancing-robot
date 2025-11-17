@@ -62,4 +62,5 @@ namespace Config {
     static constexpr unsigned int MAIN_TASK_CORE_ID = 0;
 
     static constexpr float DEADMAN_ANGLE = 70.0f;
+    static constexpr unsigned int MAX_WAIT_MS = 20;
 };

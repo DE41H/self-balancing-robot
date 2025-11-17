@@ -15,12 +15,12 @@ unsigned int lastEncoderCountA = 0;
 unsigned int lastEncoderCountB = 0;
 float filteredSpeed = 0.0f;
 int lastPwmA = 0;
+int lastPwmB = 0;
 
 void update() {
     struct Gyro::Data input;
-    xQueueReceive(gyro.getDataQueue(), &input, portMAX_DELAY);
 
-    if (abs(input.pitch) > Config::DEADMAN_ANGLE) {
+    if (xQueueReceive(gyro.getDataQueue(), &input, pdMS_TO_TICKS(Config::MAX_WAIT_MS)) != pdTRUE || abs(input.pitch) > Config::DEADMAN_ANGLE) {
         A.setPWM(0);
         B.setPWM(0);
         Motor::stby(true);
@@ -30,18 +30,20 @@ void update() {
     unsigned int currentEncoderCountA = A.getEncoderCount();
     unsigned int currentEncoderCountB = B.getEncoderCount();
 
-    int speedA = currentEncoderCountA - lastEncoderCountA;
-    int speedB = currentEncoderCountB - lastEncoderCountB;
+    int ticksA = currentEncoderCountA - lastEncoderCountA;
+    int ticksB = currentEncoderCountB - lastEncoderCountB;
 
     lastEncoderCountA = currentEncoderCountA;
     lastEncoderCountB = currentEncoderCountB;
 
-    if (lastPwmA < 0) speedA = -speedA;
-    if (lastPwmA < 0) speedB = -speedB;
+    int directionA = (lastPwmA >= 0) ? 1 : -1;
+    int directionB = (lastPwmB >= 0) ? 1 : -1;
 
-    float rawSpeed = (speedA + speedB) / 2.0f;
+    float rawSpeedA = ticksA * directionA;
+    float rawSpeedB = ticksB * directionB;
+    float rawSpeed = (rawSpeedA + rawSpeedB) / 2.0f;
+    
     filteredSpeed = (Config::SPEED_ALPHA * filteredSpeed) + ((1.0f - Config::SPEED_ALPHA) * rawSpeed);
-
     float targetPitch = speed.compute(-filteredSpeed, 0.0f);
 
     struct Gyro::Data output = {balance.compute(input.pitch, targetPitch), turn.compute(input.yaw, 0.0f)};
@@ -53,6 +55,7 @@ void update() {
     B.setPWM(pwmB);
 
     lastPwmA = pwmA;
+    lastPwmB = pwmB;
 }
 
 void loop() {
