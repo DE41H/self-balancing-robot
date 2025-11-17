@@ -11,7 +11,9 @@ class Motor {
         void setPWM(int pwm);
         void ping();
         unsigned int getEncoderCount() const { return _encoderCount; }
+
         static bool begin();
+        static void stby(bool enable);
 
     private:
         unsigned int _pwmPin, _pwmChannel, _in1Pin, _in2Pin, _encoderPin;
@@ -19,8 +21,6 @@ class Motor {
 
         void init();
         void drive(int pwm);
-
-        static void stby(bool enable);
 };
 
 

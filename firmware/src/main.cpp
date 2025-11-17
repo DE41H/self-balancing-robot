@@ -14,6 +14,13 @@ void update() {
     struct Gyro::Data input;
     xQueueReceive(gyro.getDataQueue(), &input, portMAX_DELAY);
 
+    if (abs(input.pitch) > 70.0f) {
+        A.setPWM(0);
+        B.setPWM(0);
+        Motor::stby(true);
+        return;
+    }
+
     struct Gyro::Data output = {balance.compute(input.pitch, 0.0f), turn.compute(input.yaw, 0.0f)};
 
     A.setPWM((int) (output.pitch + output.yaw));
