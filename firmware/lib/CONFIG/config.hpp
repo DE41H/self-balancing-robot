@@ -41,6 +41,9 @@ namespace Config {
     static constexpr float SPEED_KP = 0.0f;
     static constexpr float SPEED_KI = 0.0f;
     static constexpr float SPEED_KD = 0.0f;
+    static constexpr float SPEED_MIN = 0.0f;
+    static constexpr float SPEED_MAX = 0.0f;
+    static constexpr float SPEED_ALPHA = 0.95f;
 
     static constexpr float BALANCE_KP = 0.0f;
     static constexpr float BALANCE_KI = 0.0f;
@@ -57,4 +60,6 @@ namespace Config {
     static constexpr unsigned int MAIN_TASK_STACK_SIZE = 4096;
     static constexpr unsigned int MAIN_TASK_PRIORITY = 5;
     static constexpr unsigned int MAIN_TASK_CORE_ID = 0;
+
+    static constexpr float DEADMAN_ANGLE = 70.0f;
 };
