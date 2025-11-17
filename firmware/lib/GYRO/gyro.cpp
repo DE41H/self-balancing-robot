@@ -7,22 +7,15 @@ _offset({0.0f, 0.0f, 0.0f})
 }
 
 bool Gyro::begin() {
-    _pitchQueue = xQueueCreate(1, sizeof(float));
-    if (_pitchQueue == NULL) {
-        Serial.println("Failed to create pitch queue!");
-        return false;
-    }
-    _yawQueue = xQueueCreate(1, sizeof(float));
-    if (_yawQueue == NULL) {
-        Serial.println("Failed to create yaw queue!");
-        vQueueDelete(_pitchQueue); 
+    _dataQueue = xQueueCreate(1, sizeof(Data));
+    if (_dataQueue == NULL) {
+        Serial.println("Failed to create gyro data queue!");
         return false;
     }
 
     if (!setup()) {
         Serial.println("IMU Hardware Setup Failed!");
-        vQueueDelete(_pitchQueue);
-        vQueueDelete(_yawQueue);
+        vQueueDelete(_dataQueue);
         return false;
     }
 
@@ -37,8 +30,7 @@ bool Gyro::begin() {
     );
     if (taskCreated != pdPASS) {
         Serial.println("Failed to create gyro task!");
-        vQueueDelete(_pitchQueue);
-        vQueueDelete(_yawQueue);
+        vQueueDelete(_dataQueue);
         return false;
     }
 
@@ -55,12 +47,10 @@ void Gyro::update() {
         _a.acceleration.y,
         _a.acceleration.z
     );
+
+    struct Data data = {_filter.getPitch(), _filter.getYaw()};
     
-    float currentPitch = _filter.getPitch();
-    float currentYaw = _filter.getYaw();
-    
-    xQueueOverwrite(_pitchQueue, &currentPitch);
-    xQueueOverwrite(_yawQueue, &currentYaw);
+    xQueueOverwrite(_dataQueue, &data);
 }
 
 void Gyro::calibrate() {

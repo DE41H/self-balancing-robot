@@ -13,16 +13,18 @@ class Gyro {
     public:
         Gyro();
         
+        struct Data {
+            float pitch, yaw;
+        };
+
         bool begin();
-        QueueHandle_t getPitchQueue() const { return _pitchQueue; }
-        QueueHandle_t getYawQueue() const { return _yawQueue; }
+        QueueHandle_t getDataQueue() const { return _dataQueue; }
 
     private:
         Adafruit_MPU6050 _mpu;
         Adafruit_Mahony _filter;
         sensors_event_t _a, _g, _temp;
-        QueueHandle_t _pitchQueue;
-        QueueHandle_t _yawQueue;
+        QueueHandle_t _dataQueue;
         TaskHandle_t _taskHandle;
 
         struct GyroOffset {

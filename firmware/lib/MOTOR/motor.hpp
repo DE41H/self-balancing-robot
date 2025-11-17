@@ -1,34 +1,24 @@
 #pragma once
 #include <Arduino.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#include "driver/pcnt.h"
 #include "driver/ledc.h"
-#include <pid_controller.hpp>
 #include <config.hpp>
 
 
 class Motor {
     public:
-        Motor(const byte pwm, const byte channel, const byte in1, const byte in2, const byte encoderA, const byte encoderB, const pcnt_unit_t pcntUnit);
+        Motor(const unsigned int pwm, const unsigned int channel, const unsigned int in1, const unsigned int in2, const unsigned int encoderPin);
         
-        void setRPM(float RPM);
-
+        void setPWM(int pwm);
+        void ping();
+        unsigned int getEncoderCount() const { return _encoderCount; }
         static bool begin();
 
     private:
-        byte _pwmPin, _pwmChannel, _in1Pin, _in2Pin, _encoderPinA, _encoderPinB;
-        pcnt_unit_t _pcntUnit;
-        int16_t _lastPcntCount;
-
-        float _currentRPM;
-        float _targetRPM;
-        PIDController _rpm;
+        unsigned int _pwmPin, _pwmChannel, _in1Pin, _in2Pin, _encoderPin;
+        volatile unsigned int _encoderCount;
 
         void init();
-        void update();
-        bool setupPCNT();
-        void drive(float pwm);
+        void drive(int pwm);
 
         static void stby(bool enable);
 };
