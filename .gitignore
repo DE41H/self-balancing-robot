@@ -1,7 +1,17 @@
+<<<<<<< HEAD
+=======
+.env
+env
+>>>>>>> origin/main
 .vscode
 vscode
 .venv
 venv
+<<<<<<< HEAD
 .env
 env
 *.DS_Store
+=======
+*.DS_Store
+hardware/schematics/self-balancing-robot/self-balancing-robot-backups/
+>>>>>>> origin/main

@@ -14,25 +14,28 @@ This repository contains all the code, documentation, and design files for our t
 
 * **Stable Balancing:** Uses a PID controller to maintain balance on two wheels.
 * **Sensor:** Uses gyroscope data for an accurate orientation estimate.
-* **[Your Feature]:** e.g., Bluetooth/Wi-Fi remote control via a mobile app.
-* **[Your Feature]:** e.g., 3D printed chassis and custom PCB.
+* **[Remote PID Tuning]:** PID tuning via WiFi/Bluetooth through mobile app.
+* **[3D Printed]:** 3D printed chassis, wheels, brackets, optical disc.
 
 ---
 
 ## 🔌 Hardware Stack
 
-* **Microcontroller:** [e.g., ESP32, Arduino Uno, Raspberry Pi Pico W]
-* **Gyro Sensor:** [e.g., MPU6050, BNO055]
-* **Motors:** [e.g., N20 DC Gear Motors with Encoders]
-* **Motor Driver:** [e.g., L298N, DRV8833]
-* **Battery:** [e.g., 2S 7.4V LiPo Battery]
-* **Chassis:** [e.g., 3D Printed (PLA), Laser-cut acrylic]
+* **Microcontroller:** ESP32-C3
+* **Gyro Sensor:** MPU6050
+* **Motors:** GA12-N20 DC Gear Motors
+* **Motor Driver:** TB6612FNG
+* **Battery:** 2S 7.4V LiPo Battery
+* **Chassis:** 3D Printed
+* **Wheels:** 3D Printed
+* **Encoder:** Groove Coupler
+* **Buck Converter:** LM2596
 
 ---
 
 ## 📦 Software & Libraries
 
-* **Main Language:** [e.g., C++ (Arduino Framework), MicroPython]
+* **Main Language:** C++ (Arduino Framework)
 
 ---
 
@@ -42,4 +45,6 @@ This repository contains all the code, documentation, and design files for our t
 * **[@IronMan1405]** - Dakshesh Nankani
 * **[@PranayS216]** - Pranay
 * **[@navneetgithubasdf]** - Navneet
+
+
 
